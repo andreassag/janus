@@ -56,12 +56,12 @@ Then pass `--bakta_db /path/to/bakta_db` when running the pipeline.
 ## Clone the repository
 
 ```bash
-git clone https://github.com/exterex/janus.git
+git clone https://github.com/andreassag/janus.git
 cd janus
 ```
 
 Alternatively, Nextflow can pull the pipeline directly:
 
 ```bash
-nextflow run exterex/janus --help
+nextflow run andreassag/janus --help
 ```
