@@ -22,7 +22,7 @@
 ## Quick start
 
 ```bash
-nextflow run exterex/janus \
+nextflow run andreassag/janus \
     --input samplesheet.csv \
     --outdir results \
     -profile docker
@@ -91,7 +91,7 @@ results/
 
 ## Documentation
 
-Full documentation is available at [https://exterex.github.io/janus](https://exterex.github.io/janus).
+Full documentation is available at [https://andreassag.github.io/janus](https://andreassag.github.io/janus).
 
 ## Citations
 

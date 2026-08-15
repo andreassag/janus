@@ -26,7 +26,7 @@ Empty fields are treated as "not provided" and fall back to defaults.
 ## Basic usage
 
 ```bash
-nextflow run exterex/janus \
+nextflow run andreassag/janus \
     --input samplesheet.csv \
     --outdir results \
     -profile docker
@@ -39,7 +39,7 @@ Use `--bakta_db_dir` and `--eggnog_db_dir` to control where they are stored — 
 shared HPC storage where the same databases are reused across users and projects.
 
 ```bash
-nextflow run exterex/janus \
+nextflow run andreassag/janus \
     --input samplesheet.csv \
     --bakta_db_dir /shared/databases/bakta \
     --eggnog_db_dir /shared/databases/eggnog \
@@ -52,7 +52,7 @@ nextflow run exterex/janus \
 eggNOG-mapper runs by default. To skip it:
 
 ```bash
-nextflow run exterex/janus \
+nextflow run andreassag/janus \
     --input samplesheet.csv \
     --outdir results \
     --eggnog_run false \
@@ -73,7 +73,7 @@ nextflow run exterex/janus \
 ## Resuming a run
 
 ```bash
-nextflow run exterex/janus \
+nextflow run andreassag/janus \
     --input samplesheet.csv \
     --outdir results \
     -profile docker \
