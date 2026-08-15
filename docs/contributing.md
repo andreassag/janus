@@ -8,7 +8,7 @@ project follows.
 ## Development setup
 
 ```bash
-git clone https://github.com/exterex/janus.git
+git clone https://github.com/andreassag/janus.git
 cd janus
 
 # Create a Python virtual environment (Python 3.11+)

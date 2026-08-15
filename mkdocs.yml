@@ -1,8 +1,8 @@
 site_name: janus
 site_description: Nextflow pipeline for Bakta genome annotation with locus tag transfer
-site_author: exTerEX
-repo_name: exterex/janus
-repo_url: https://github.com/exterex/janus
+site_author: andreassag
+repo_name: andreassag/janus
+repo_url: https://github.com/andreassag/janus
 edit_uri: edit/main/docs/
 
 theme:

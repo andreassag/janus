@@ -29,7 +29,7 @@ graph LR
 ## Quick start
 
 ```bash
-nextflow run exterex/janus \
+nextflow run andreassag/janus \
     --input samplesheet.csv \
     --outdir results \
     -profile docker

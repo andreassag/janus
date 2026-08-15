@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/exterex/janus/main/nextflow_schema.json",
-  "title": "exterex/janus pipeline parameters",
+  "$id": "https://raw.githubusercontent.com/andreassag/janus/main/nextflow_schema.json",
+  "title": "andreassag/janus pipeline parameters",
   "description": "Bacterial genome annotation with Bakta and legacy locus tag transfer",
   "type": "object",
   "$defs": {
