@@ -39,11 +39,9 @@ Nextflow files are formatted with [Prettier](https://prettier.io/) via `prettier
 
 The repository includes pre-configured Git hooks in the `.githooks/` directory:
 
-| Hook         | Purpose                                                                 |
-| ------------ | ----------------------------------------------------------------------- |
-| `pre-commit` | Validates Prettier formatting, EditorConfig compliance, and JSON schema |
-| `commit-msg` | Enforces [Conventional Commits](https://www.conventionalcommits.org/)   |
-| `pre-push`   | Runs `nf-test` suite prior to pushing to ensure CI stays green          |
+| Hook         | Purpose                                                   |
+| ------------ | --------------------------------------------------------- |
+| `pre-commit` | Validates EditorConfig compliance and Prettier formatting |
 
 Activate the hooks:
 

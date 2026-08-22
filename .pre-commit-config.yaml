@@ -1,14 +1,4 @@
 repos:
-  # Python linting and formatting via Ruff
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.4
-    hooks:
-      - id: ruff
-        args: [--fix]
-        types_or: [python, pyi]
-      - id: ruff-format
-        types_or: [python, pyi]
-
   # Formatting for Nextflow (Groovy), JSON, YAML, Markdown via Prettier
   - repo: https://github.com/pre-commit/mirrors-prettier
     rev: v4.0.0-alpha.8

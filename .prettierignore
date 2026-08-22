@@ -1,4 +1,7 @@
 # nf-core .prettierignore
+.agents/
+.janus/
+node_modules/
 assets/
 *.png
 *.svg
@@ -10,8 +13,9 @@ CITATIONS.md
 *.nf
 *.config
 modules/nf-core/
+.pytest_cache/
 .nf-test/
-.janus/
+.nextflow/
 work/
-results/
+results*/
 site/

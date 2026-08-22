@@ -14,6 +14,3 @@ workflow {
     BAKTA_ANNOTATE()
 }
 
-workflow.onComplete {
-    log.info(workflow.success ? "\nPipeline completed successfully.\n" : "\nPipeline failed.\n")
-}
