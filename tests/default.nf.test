@@ -1,7 +1,8 @@
 nextflow_pipeline {
 
     name "Test pipeline"
-    script "./main.nf"
+    script "../main.nf"
+    profile "test,docker"
 
     test("Pipeline runs with test profile") {
         when {

@@ -7,10 +7,10 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { BAKTA             } from '../modules/local/bakta/main'
-include { BAKTA_DOWNLOAD_DB } from '../modules/local/bakta_db/main'
-include { EGGNOG_DOWNLOAD_DB } from '../modules/local/eggnog_db/main'
-include { EGGNOG_MAPPER     } from '../modules/local/eggnog_mapper/main'
+include { BAKTA_BAKTA             } from '../modules/nf-core/bakta/bakta/main'
+include { BAKTA_BAKTADBDOWNLOAD   } from '../modules/nf-core/bakta/baktadbdownload/main'
+include { EGGNOG_DOWNLOADDATABASE } from '../modules/local/eggnogdownloaddatabase/main'
+include { EGGNOGMAPPER            } from '../modules/nf-core/eggnogmapper/main'
 
 workflow BAKTA_ANNOTATE {
 
@@ -19,7 +19,7 @@ workflow BAKTA_ANNOTATE {
     // Required columns : sample, fasta
     // Optional columns : complete, gram, locus_prefix
     //
-    Channel
+    channel
         .fromPath(params.input, checkIfExists: true)
         .splitCsv(header: true, strip: true)
         .map { row ->
@@ -32,29 +32,64 @@ workflow BAKTA_ANNOTATE {
             def complete = row.complete?.toLowerCase() in ['true', '1', 'yes']
 
             def meta = [id: row.sample, prefix: prefix, gram: gram, complete: complete]
-            def fasta = file(row.fasta, checkIfExists: true)
+
+            def fasta = file(row.fasta)
+            if (!fasta.exists()) {
+                fasta = file("${projectDir}/${row.fasta}")
+            }
+            if (!fasta.exists()) {
+                fasta = file("${file(params.input).parent}/${row.fasta}")
+            }
+            if (!fasta.exists()) {
+                error("ERROR: FASTA file not found for sample '${row.sample}': ${row.fasta}")
+            }
 
             return [meta, fasta]
         }
         .set { ch_samples }
 
     // ── Download / reuse databases ──────────────────────────────────────────
-    //   Bakta   → <bakta_db_dir>/db/
-    //   eggNOG  → <eggnog_db_dir>/eggnog_data/
-    BAKTA_DOWNLOAD_DB()
-    ch_db = BAKTA_DOWNLOAD_DB.out.db
+    //   Bakta   → <bakta_db_dir>
+    //   eggNOG  → <eggnog_db_dir>
+    if (params.bakta_db) {
+        ch_bakta_db = channel.fromPath(params.bakta_db, checkIfExists: true).collect()
+    } else {
+        BAKTA_BAKTADBDOWNLOAD()
+        ch_bakta_db = BAKTA_BAKTADBDOWNLOAD.out.db
+    }
 
     // ── Run Bakta ───────────────────────────────────────────────────────────
+    ch_proteins    = params.bakta_proteins ? file(params.bakta_proteins, checkIfExists: true) : []
+    ch_prodigal_tf = params.bakta_prodigal_tf ? file(params.bakta_prodigal_tf, checkIfExists: true) : []
+    ch_regions     = params.bakta_regions ? file(params.bakta_regions, checkIfExists: true) : []
+    ch_hmms        = params.bakta_hmms ? file(params.bakta_hmms, checkIfExists: true) : []
 
-    ch_bakta_input = ch_samples.combine(ch_db)
-        .map { meta, fasta, db -> [meta, fasta, db] }
-
-    BAKTA(ch_bakta_input)
+    BAKTA_BAKTA(
+        ch_samples,
+        ch_bakta_db,
+        ch_proteins,
+        ch_prodigal_tf,
+        ch_regions,
+        ch_hmms
+    )
 
     if (params.eggnog_run) {
-        EGGNOG_DOWNLOAD_DB()
-        ch_eggnog_db    = EGGNOG_DOWNLOAD_DB.out.db
-        ch_eggnog_input = BAKTA.out.faa.combine(ch_eggnog_db)
-        EGGNOG_MAPPER(ch_eggnog_input)
+        if (params.eggnog_db) {
+            ch_eggnog_db = channel.fromPath(params.eggnog_db, checkIfExists: true).collect()
+        } else {
+            EGGNOG_DOWNLOADDATABASE()
+            ch_eggnog_db = EGGNOG_DOWNLOADDATABASE.out.db
+        }
+
+        ch_search_mode_db = channel.value([
+            params.eggnog_search_mode,
+            params.eggnog_dmnd_db ? file(params.eggnog_dmnd_db, checkIfExists: true) : []
+        ])
+
+        EGGNOGMAPPER(
+            BAKTA_BAKTA.out.faa,
+            ch_search_mode_db,
+            ch_eggnog_db
+        )
     }
 }

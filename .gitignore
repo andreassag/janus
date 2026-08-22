@@ -17,6 +17,7 @@ pipeline_info/
 # Intermediate / cached DB downloads
 tmp/
 .db_cache/
+.janus/
 
 # Node
 node_modules/

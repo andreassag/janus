@@ -1,8 +1,7 @@
 # janus
 
-**janus** is a Nextflow pipeline for bacterial genome annotation using
-[Bakta](https://github.com/oschwengers/bakta) with optional functional annotation via
-[eggNOG-mapper](https://github.com/eggnogdb/eggnog-mapper).
+**janus** is a Nextflow pipeline for bacterial genome annotation using [Bakta](https://github.com/oschwengers/bakta)
+with optional functional annotation via [eggNOG-mapper](https://github.com/eggnogdb/eggnog-mapper).
 
 ---
 

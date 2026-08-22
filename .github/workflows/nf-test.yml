@@ -33,7 +33,7 @@ jobs:
         id: get-shards
 
   nf-test:
-    name: nf-test modules
+    name: nf-test modules and pipeline
     needs: [get-shards]
     runs-on: ubuntu-latest
     steps:
@@ -50,7 +50,7 @@ jobs:
           version: "0.9.5"
 
       - name: Run nf-test
-        run: nf-test test tests/modules/ --verbose
+        run: nf-test test tests/ --verbose
 
       - name: Upload nf-test logs on failure
         if: failure()

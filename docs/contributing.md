@@ -18,8 +18,11 @@ source .venv/bin/activate
 # Install development tools
 pip install pre-commit
 
-# Install and activate the pre-commit hooks
-pre-commit install
+# Activate native git hooks in the repository
+git config core.hooksPath .githooks
+
+# Or install Python pre-commit hooks
+pip install pre-commit && pre-commit install
 ```
 
 ---
@@ -32,37 +35,55 @@ Nextflow files are formatted with [Prettier](https://prettier.io/) via `prettier
 
 ---
 
-## Pre-commit hooks
+## Git hooks (`.githooks/`)
 
-The following hooks run automatically on `git commit`:
+The repository includes pre-configured Git hooks in the `.githooks/` directory:
 
-| Hook                  | Purpose                                       |
-| --------------------- | --------------------------------------------- |
-| `prettier`            | Formatting for Nextflow, JSON, YAML, Markdown |
-| `trailing-whitespace` | Strip trailing whitespace                     |
-| `end-of-file-fixer`   | Ensure files end with a newline               |
-| `check-yaml`          | Validate YAML syntax                          |
-| `check-json`          | Validate JSON syntax                          |
-| `mixed-line-ending`   | Enforce LF line endings                       |
+| Hook         | Purpose                                                                 |
+| ------------ | ----------------------------------------------------------------------- |
+| `pre-commit` | Validates Prettier formatting, EditorConfig compliance, and JSON schema |
+| `commit-msg` | Enforces [Conventional Commits](https://www.conventionalcommits.org/)   |
+| `pre-push`   | Runs `nf-test` suite prior to pushing to ensure CI stays green          |
 
-Run all hooks manually:
+Activate the hooks:
 
 ```bash
-pre-commit run --all-files
+git config core.hooksPath .githooks
+```
+
+Run checks manually:
+
+```bash
+.githooks/pre-commit
+```
+
+---
+
+## Managing nf-core modules
+
+Modules are installed from [nf-core/modules](https://github.com/nf-core/modules):
+
+```bash
+# List installed modules
+nf-core modules list local
+
+# Install a new module
+nf-core modules install <tool>/<subtool>
+
+# Update modules
+nf-core modules update
 ```
 
 ---
 
 ## Testing
 
-### nf-test (Nextflow module tests)
+### nf-test (Nextflow unit tests)
 
 ```bash
 # requires Nextflow and Docker
-nf-test test --profile docker --verbose
+nf-test test tests/ --verbose
 ```
-
-Module tests live in `tests/modules/local/<module_name>/main.nf.test` and use test fixtures.
 
 ### Full pipeline test
 
@@ -70,7 +91,8 @@ Module tests live in `tests/modules/local/<module_name>/main.nf.test` and use te
 nextflow run . \
     --input assets/samplesheet.csv \
     --outdir results \
-    -profile test,docker
+    -profile test,docker \
+    -stub-run
 ```
 
 ---

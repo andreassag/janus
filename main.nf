@@ -8,8 +8,6 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-nextflow.enable.dsl = 2
-
 include { BAKTA_ANNOTATE } from './workflows/bakta_annotate'
 
 workflow {

@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- [Nextflow](https://www.nextflow.io/) >= 23.04.0 (requires Java 11+)
+- [Nextflow](https://www.nextflow.io/) >= 25.10.0 (requires Java 17+)
 - A container engine: [Docker](https://www.docker.com/), [Singularity](https://sylabs.io/singularity/),
   [Apptainer](https://apptainer.org/), [Podman](https://podman.io/), or [Conda](https://docs.conda.io/)
 

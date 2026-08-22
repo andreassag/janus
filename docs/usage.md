@@ -9,7 +9,7 @@ The pipeline requires a CSV samplesheet. Only `sample` and `fasta` are required.
 | `sample`       | Yes      | Unique sample identifier                                      |
 | `fasta`        | Yes      | Path to genome FASTA file                                     |
 | `complete`     | No       | `true` if genome is fully assembled (default: `false`)        |
-| `gram`         | No       | Gram stain: `+`, `-`, or `?` (default: `?`)                  |
+| `gram`         | No       | Gram stain: `+`, `-`, or `?` (default: `?`)                   |
 | `locus_prefix` | No       | Prefix for locus tags and output files (default: sample name) |
 
 Example:
@@ -34,9 +34,9 @@ nextflow run andreassag/janus \
 
 ## Specifying database locations
 
-Both databases are downloaded automatically on first run and cached for subsequent runs.
-Use `--bakta_db_dir` and `--eggnog_db_dir` to control where they are stored — useful for
-shared HPC storage where the same databases are reused across users and projects.
+Both databases are downloaded automatically on first run and cached for subsequent runs. Use `--bakta_db_dir` and
+`--eggnog_db_dir` to control where they are stored — useful for shared HPC storage where the same databases are reused
+across users and projects.
 
 ```bash
 nextflow run andreassag/janus \
@@ -61,14 +61,14 @@ nextflow run andreassag/janus \
 
 ## Profiles
 
-| Profile       | Description                        |
-| ------------- | ---------------------------------- |
-| `docker`      | Run with Docker containers         |
-| `singularity` | Run with Singularity containers    |
-| `apptainer`   | Run with Apptainer containers      |
-| `podman`      | Run with Podman containers         |
-| `conda`       | Run with Conda environments        |
-| `test`        | Minimal test dataset               |
+| Profile       | Description                     |
+| ------------- | ------------------------------- |
+| `docker`      | Run with Docker containers      |
+| `singularity` | Run with Singularity containers |
+| `apptainer`   | Run with Apptainer containers   |
+| `podman`      | Run with Podman containers      |
+| `conda`       | Run with Conda environments     |
+| `test`        | Minimal test dataset            |
 
 ## Resuming a run
 

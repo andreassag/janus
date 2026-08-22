@@ -1,15 +1,12 @@
 nextflow_process {
 
-    name "Test EGGNOG_DOWNLOAD_DB stub"
-    script "../../../../modules/local/eggnog_db/main.nf"
-    process "EGGNOG_DOWNLOAD_DB"
+    name "Test EGGNOG_DOWNLOADDATABASE stub"
+    script "../../../../modules/local/eggnogdownloaddatabase/main.nf"
+    process "EGGNOG_DOWNLOADDATABASE"
     profile "docker"
 
     test("Should produce eggNOG DB output") {
         when {
-            params {
-                eggnog_db_dir = "${projectDir}/.nf-test-db"
-            }
             process {
                 """
                 """

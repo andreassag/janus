@@ -1,3 +1,12 @@
 {
-  "Exclude": ["^node_modules/", "^\\.git/"]
+  "Exclude": [
+    "^node_modules/",
+    "^\\.git/",
+    "^modules/nf-core/",
+    "^\\.nf-test/",
+    "^\\.janus/",
+    "^work/",
+    "^results/",
+    "^site/"
+  ]
 }

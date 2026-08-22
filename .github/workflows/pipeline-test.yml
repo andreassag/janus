@@ -23,7 +23,7 @@ jobs:
       - name: Run pipeline (test + docker)
         run: |
           nextflow run . \
-            -profile test \
+            -profile test,docker \
             -stub-run
 
       - name: Upload pipeline logs on failure

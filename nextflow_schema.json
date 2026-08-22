@@ -15,7 +15,7 @@
           "format": "file-path",
           "exists": true,
           "mimetype": "text/csv",
-          "description": "Path to CSV samplesheet with columns: sample, fasta, prefix (required); gff, protein (optional).",
+          "description": "Path to CSV samplesheet with columns: sample, fasta (required); complete, gram, locus_prefix (optional).",
           "fa_icon": "fas fa-file-csv"
         },
         "outdir": {
@@ -32,20 +32,39 @@
       "title": "Database options",
       "type": "object",
       "fa_icon": "fas fa-hdd",
-      "description": "Persistent storeDir locations for Bakta and eggNOG databases. Both default to <launchDir>/.db_cache and can be set independently. On HPC/Slurm point these at shared project or scratch storage.",
+      "description": "Database locations for Bakta and eggNOG. Both default to <launchDir>/.janus/ and are downloaded automatically on first run if not provided.",
       "properties": {
+        "bakta_db": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Path to an existing Bakta database directory. If not provided, the database is downloaded automatically to bakta_db_dir.",
+          "fa_icon": "fas fa-database"
+        },
         "bakta_db_dir": {
           "type": "string",
           "format": "directory-path",
-          "default": "${launchDir}/.db_cache",
-          "description": "Persistent storeDir for the Bakta database. The DB is stored at <bakta_db_dir>/db/. Downloaded automatically on first run.",
+          "default": "${launchDir}/.janus/bakta",
+          "description": "Directory where the Bakta database is downloaded or stored.",
+          "fa_icon": "fas fa-database"
+        },
+        "bakta_db_type": {
+          "type": "string",
+          "default": "full",
+          "enum": ["full", "light"],
+          "description": "Bakta database type to download ('full' or 'light').",
+          "fa_icon": "fas fa-layer-group"
+        },
+        "eggnog_db": {
+          "type": "string",
+          "format": "directory-path",
+          "description": "Path to an existing eggNOG database directory. If not provided, the database is downloaded automatically to eggnog_db_dir.",
           "fa_icon": "fas fa-database"
         },
         "eggnog_db_dir": {
           "type": "string",
           "format": "directory-path",
-          "default": "${launchDir}/.db_cache",
-          "description": "Persistent storeDir for the eggNOG-mapper database. The DB is stored at <eggnog_db_dir>/eggnog_data/. Downloaded automatically on first run.",
+          "default": "${launchDir}/.janus/eggnog",
+          "description": "Directory where the eggNOG-mapper database is downloaded or stored.",
           "fa_icon": "fas fa-database"
         }
       }
@@ -78,6 +97,27 @@
           "fa_icon": "fas fa-file",
           "hidden": true
         },
+        "bakta_proteins": {
+          "type": "string",
+          "format": "file-path",
+          "description": "FASTA/GenBank file of trusted proteins to first annotate from.",
+          "fa_icon": "fas fa-file",
+          "hidden": true
+        },
+        "bakta_regions": {
+          "type": "string",
+          "format": "file-path",
+          "description": "GFF3 or GenBank file of pre-annotated regions.",
+          "fa_icon": "fas fa-file",
+          "hidden": true
+        },
+        "bakta_hmms": {
+          "type": "string",
+          "format": "file-path",
+          "description": "HMM file of trusted hidden Markov models (HMMER format) for CDS annotation.",
+          "fa_icon": "fas fa-file",
+          "hidden": true
+        },
         "bakta_locus_tag_increment": {
           "type": "integer",
           "default": 1,
@@ -105,13 +145,6 @@
           "format": "file-path",
           "description": "Replicon information table (tsv/csv).",
           "fa_icon": "fas fa-table",
-          "hidden": true
-        },
-        "bakta_hmms": {
-          "type": "string",
-          "format": "file-path",
-          "description": "HMM file of trusted hidden Markov models (HMMER format) for CDS annotation.",
-          "fa_icon": "fas fa-file",
           "hidden": true
         },
         "bakta_meta": {
@@ -247,6 +280,13 @@
           "fa_icon": "fas fa-file-alt",
           "hidden": true
         },
+        "eggnog_dmnd_db": {
+          "type": "string",
+          "format": "file-path",
+          "description": "Path to custom Diamond database file (*.dmnd).",
+          "fa_icon": "fas fa-database",
+          "hidden": true
+        },
         "eggnog_pident": {
           "type": "number",
           "minimum": 0,
@@ -287,7 +327,15 @@
         "eggnog_sensmode": {
           "type": "string",
           "default": "sensitive",
-          "enum": ["default", "fast", "mid-sensitive", "sensitive", "more-sensitive", "very-sensitive", "ultra-sensitive"],
+          "enum": [
+            "default",
+            "fast",
+            "mid-sensitive",
+            "sensitive",
+            "more-sensitive",
+            "very-sensitive",
+            "ultra-sensitive"
+          ],
           "description": "Diamond sensitivity mode (--sensmode). Only used when eggnog_search_mode=diamond.",
           "fa_icon": "fas fa-sliders-h",
           "hidden": true
@@ -481,12 +529,6 @@
         }
       }
     },
-    "locus_tag_transfer_options": {
-      "title": "Locus tag transfer options",
-      "type": "object",
-      "fa_icon": "fas fa-exchange-alt",
-      "properties": {}
-    },
     "generic_options": {
       "title": "Generic options",
       "type": "object",
@@ -527,7 +569,6 @@
     { "$ref": "#/$defs/database_options" },
     { "$ref": "#/$defs/bakta_annotation_options" },
     { "$ref": "#/$defs/eggnog_mapper_options" },
-    { "$ref": "#/$defs/locus_tag_transfer_options" },
     { "$ref": "#/$defs/generic_options" }
   ]
 }
