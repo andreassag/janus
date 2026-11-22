@@ -22,7 +22,9 @@ pre-commit install
 
 ## Code style and linting
 
-- **Nextflow (`.nf`, `.config`)**: Validated with `nextflow lint .` and `nf-core modules lint --all`.
+- **Nextflow (`.nf`, `.config`)**: Validated with
+  `nextflow lint -exclude .git -exclude .lineage -exclude .nf-test -exclude .nextflow -exclude work -exclude nf-test.config .`
+  and `nf-core modules lint --all`.
 - **JSON, YAML, Markdown**: Formatted with [Prettier](https://prettier.io/) and checked with `editorconfig-checker`:
 
 ```bash
