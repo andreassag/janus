@@ -6,16 +6,17 @@
 
 ## Features
 
-- Batch annotation of bacterial genomes via a CSV samplesheet
+- Batch annotation of bacterial genomes via a validated CSV samplesheet (`nf-schema`)
 - Per-sample configuration of genome completeness, Gram stain, and locus tag prefix
-- Standardized [nf-core](https://nf-co.re/) modules for Bakta annotation and database downloads
-- Automatic Bakta database download when no local database is provided
+- Standardized [nf-core](https://nf-co.re/) modules for Bakta annotation, database downloads, and eggNOG-mapper
+- Automatic Bakta database download and cache reuse when no local database is provided
 - Optional eggNOG-mapper functional annotation from Bakta protein FASTA outputs
-- Automatic eggNOG database download when no local database is provided
+- Automatic eggNOG database download and cache reuse when no local database is provided
+- Automated software version tracking (`pipeline_info/software_versions.yml`)
 
 ## Requirements
 
-- [Nextflow](https://www.nextflow.io/) >= 25.10.0
+- [Nextflow](https://www.nextflow.io/) >= 25.10.0 (Java 17+)
 - [Docker](https://www.docker.com/), [Singularity](https://sylabs.io/singularity/), [Apptainer](https://apptainer.org/),
   [Podman](https://podman.io/), or [Conda](https://docs.conda.io/)
 
@@ -23,7 +24,7 @@
 
 ```bash
 nextflow run andreassag/janus \
-    --input samplesheet.csv \
+    --input assets/samplesheet.csv \
     --outdir results \
     -profile docker
 ```
@@ -34,8 +35,8 @@ A CSV samplesheet with columns:
 
 | Column         | Required | Description                                                   |
 | -------------- | -------- | ------------------------------------------------------------- |
-| `sample`       | Yes      | Unique sample identifier                                      |
-| `fasta`        | Yes      | Path to genome FASTA file                                     |
+| `sample`       | Yes      | Unique sample identifier (no spaces)                          |
+| `fasta`        | Yes      | Path to genome FASTA file (`.fa`, `.fas`, `.fna`, `.fasta`)   |
 | `complete`     | No       | `true` if genome is fully assembled (default: `false`)        |
 | `gram`         | No       | Gram stain: `+`, `-`, or `?` (default: `?`)                   |
 | `locus_prefix` | No       | Prefix for locus tags and output files (default: sample name) |
@@ -81,19 +82,20 @@ results/
 ├── eggnog/
 │   └── <sample>/          # eggNOG-mapper output per sample
 │       └── <prefix>.emapper.*
-└── pipeline_info/         # Execution reports
+└── pipeline_info/         # Execution reports and software_versions.yml
 ```
 
 ## Profiles
 
-| Profile       | Description                     |
-| ------------- | ------------------------------- |
-| `docker`      | Run with Docker containers      |
-| `singularity` | Run with Singularity containers |
-| `apptainer`   | Run with Apptainer containers   |
-| `podman`      | Run with Podman containers      |
-| `conda`       | Run with Conda environments     |
-| `test`        | Minimal test dataset            |
+| Profile       | Description                                    |
+| ------------- | ---------------------------------------------- |
+| `docker`      | Run with Docker containers                     |
+| `singularity` | Run with Singularity containers                |
+| `apptainer`   | Run with Apptainer containers                  |
+| `podman`      | Run with Podman containers                     |
+| `conda`       | Run with Conda environments                    |
+| `test`        | Compact 2-sample bacterial test dataset        |
+| `test_full`   | Full 3-genome bacterial reference test dataset |
 
 ## Documentation
 

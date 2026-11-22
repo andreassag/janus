@@ -1,0 +1,52 @@
+name: "eggnog_downloaddatabase"
+description: Download the eggNOG-mapper database files using download_eggnog_data.py
+keywords:
+  - eggnog
+  - database
+  - download
+  - functional annotation
+tools:
+  - "eggnogmapper":
+      description: |
+        EggNOG-mapper is a tool for fast functional annotation of novel sequences.
+        It uses precomputed orthologous groups and phylogenies from the eggNOG database
+        to transfer functional information from fine-grained orthologs only.
+      homepage: "https://github.com/eggnogdb/eggnog-mapper"
+      documentation: "https://github.com/eggnogdb/eggnog-mapper/wiki"
+      tool_dev_url: "https://github.com/eggnogdb/eggnog-mapper"
+      doi: "10.1093/molbev/msab293"
+      licence:
+        - "AGPL v3"
+      identifier: "biotools:eggnog-mapper-v2"
+input: []
+output:
+  db:
+    - eggnog_data/:
+        type: directory
+        description: Directory containing downloaded eggNOG-mapper database files
+        pattern: "eggnog_data/"
+  versions_eggnogmapper:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - eggnog-mapper:
+          type: string
+          description: The name of the tool
+      - python -c "from importlib.metadata import version; import sys; print(version(sys.argv[1]))" eggnog-mapper:
+          type: eval
+          description: The expression to obtain the version of the tool
+topics:
+  versions:
+    - - ${task.process}:
+          type: string
+          description: The name of the process
+      - eggnog-mapper:
+          type: string
+          description: The name of the tool
+      - python -c "from importlib.metadata import version; import sys; print(version(sys.argv[1]))" eggnog-mapper:
+          type: eval
+          description: The expression to obtain the version of the tool
+authors:
+  - "@andreassag"
+maintainers:
+  - "@andreassag"

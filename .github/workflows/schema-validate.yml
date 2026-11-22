@@ -5,50 +5,98 @@ on:
     branches: [main, develop]
     paths:
       - "nextflow_schema.json"
+      - "assets/schema_input.json"
       - "nextflow.config"
+      - "conf/*.config"
   pull_request:
     branches: [main, develop]
     paths:
       - "nextflow_schema.json"
+      - "assets/schema_input.json"
       - "nextflow.config"
+      - "conf/*.config"
 
 jobs:
   validate:
-    name: Validate nextflow_schema.json
+    name: Validate schemas and config parity
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
+      - uses: ./.github/actions/get-shards
+        id: get-shards
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v3
+        with:
+          version: "${{ steps.get-shards.outputs.nextflow-version }}"
+
       - uses: actions/setup-python@v7
         with:
-          python-version: "3.11"
+          python-version: "3.12"
 
       - name: Install jsonschema
         run: pip install jsonschema
 
-      - name: Schema is well-formed (meta-schema check)
+      - name: Validate JSON schemas and Nextflow config parity
         run: |
+          nextflow config -flat . > /tmp/nextflow_params.txt
           python - <<'EOF'
-          import json, jsonschema
-          with open("nextflow_schema.json") as f:
-              schema = json.load(f)
-          jsonschema.Draft202012Validator.check_schema(schema)
-          print("nextflow_schema.json is valid")
-          EOF
+          import json, re, sys, jsonschema
 
-      - name: Required top-level keys present
-        run: |
-          python - <<'EOF'
-          import json, sys
+          for path in ("nextflow_schema.json", "assets/schema_input.json"):
+              with open(path) as f:
+                  schema = json.load(f)
+              jsonschema.Draft202012Validator.check_schema(schema)
+              required = {"$schema", "$id", "title", "description", "type"}
+              missing = required - schema.keys()
+              if missing:
+                  print(f"{path} missing keys: {missing}", file=sys.stderr)
+                  sys.exit(1)
+              print(f"{path} is valid")
+
           with open("nextflow_schema.json") as f:
               schema = json.load(f)
-          required = {"$schema", "$id", "title", "description", "type"}
-          missing = required - schema.keys()
-          if missing:
-              print(f"Missing keys: {missing}", file=sys.stderr)
+
+          schema_params = {}
+          for section in schema.get("$defs", {}).values():
+              for k, prop in section.get("properties", {}).items():
+                  schema_params[k] = prop
+
+          config_params = {}
+          with open("/tmp/nextflow_params.txt") as f:
+              for line in f:
+                  m = re.match(r"^params\.([A-Za-z0-9_]+)\s*=\s*(.*)$", line.strip())
+                  if m:
+                      config_params[m.group(1)] = m.group(2)
+
+          missing_in_schema = set(config_params) - set(schema_params)
+          missing_in_config = set(schema_params) - set(config_params)
+          if missing_in_schema or missing_in_config:
+              print(f"Missing in schema: {sorted(missing_in_schema)}", file=sys.stderr)
+              print(f"Missing in config: {sorted(missing_in_config)}", file=sys.stderr)
               sys.exit(1)
-          if "properties" not in schema and "$defs" not in schema:
-              print("Schema must have either 'properties' or '$defs'", file=sys.stderr)
-              sys.exit(1)
-          print("All required top-level keys present")
+
+          for name, prop in schema_params.items():
+              raw = config_params[name]
+              if "default" not in prop:
+                  if raw != "null":
+                      print(f"Param {name}: schema omits default so config must be null, got {raw}", file=sys.stderr)
+                      sys.exit(1)
+              elif isinstance(prop["default"], bool):
+                  expected = "true" if prop["default"] else "false"
+                  if raw != expected:
+                      print(f"Param {name}: config={raw} != schema={expected}", file=sys.stderr)
+                      sys.exit(1)
+              elif isinstance(prop["default"], (int, float)):
+                  if str(prop["default"]) != raw:
+                      print(f"Param {name}: config={raw} != schema={prop['default']}", file=sys.stderr)
+                      sys.exit(1)
+              elif name not in ("bakta_db_dir", "eggnog_db_dir"):
+                  expected = f"'{prop['default']}'"
+                  if raw != expected:
+                      print(f"Param {name}: config={raw} != schema={expected}", file=sys.stderr)
+                      sys.exit(1)
+
+          print(f"All {len(schema_params)} schema parameters match Nextflow config defaults.")
           EOF

@@ -4,9 +4,11 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - "modules/**"
+      - "main.nf"
       - "workflows/**"
+      - "modules/**"
       - "tests/**"
+      - "assets/**"
       - "nf-test.config"
       - "nextflow.config"
       - "conf/**"
@@ -14,12 +16,17 @@ on:
     branches: [main, develop]
     types: [opened, synchronize, reopened, labeled]
     paths:
-      - "modules/**"
+      - "main.nf"
       - "workflows/**"
+      - "modules/**"
       - "tests/**"
+      - "assets/**"
       - "nf-test.config"
       - "nextflow.config"
       - "conf/**"
+  schedule:
+    - cron: "17 6 * * 1" # Every Monday at 06:17 UTC
+  workflow_dispatch:
 
 jobs:
   get-shards:
@@ -32,8 +39,8 @@ jobs:
       - uses: ./.github/actions/get-shards
         id: get-shards
 
-  nf-test:
-    name: nf-test modules and pipeline
+  nf-test-stub:
+    name: nf-test stub suite
     needs: [get-shards]
     runs-on: ubuntu-latest
     steps:
@@ -49,13 +56,42 @@ jobs:
         with:
           version: "0.9.5"
 
-      - name: Run nf-test
-        run: nf-test test tests/ --verbose
+      - name: Run stub nf-test suite
+        run: nf-test test tests/ --tag stub --verbose
 
       - name: Upload nf-test logs on failure
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: nf-test-logs
+          name: nf-test-stub-logs
+          path: .nf-test/
+          retention-days: 7
+
+  nf-test-real:
+    name: nf-test real containerized suite
+    needs: [get-shards]
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v3
+        with:
+          version: "${{ needs.get-shards.outputs.nextflow-version }}"
+
+      - name: Install nf-test
+        uses: nf-core/setup-nf-test@v2
+        with:
+          version: "0.9.5"
+
+      - name: Run real containerized nf-test suite
+        run: nf-test test tests/pipeline_real.nf.test tests/modules/eggnogmapper.nf.test --profile docker --verbose
+
+      - name: Upload nf-test logs on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nf-test-real-logs
           path: .nf-test/
           retention-days: 7

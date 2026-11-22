@@ -6,29 +6,32 @@
 > reproducible computational workflows. _Nature Biotechnology_, 35(4), 316–319.
 > [https://doi.org/10.1038/nbt.3820](https://doi.org/10.1038/nbt.3820)
 
+## [nf-core](https://nf-co.re/)
+
+> Ewels, P. A., Peltzer, A., Fillinger, S., Patel, H., Alneberg, J., Wilm, A., Garcia, M. U., Di Tommaso, P., & Nahnsen,
+> S. (2020). The nf-core framework for community-curated bioinformatics pipelines. _Nature Biotechnology_, 38(3), 276–278.
+> [https://doi.org/10.1038/s41587-020-0439-x](https://doi.org/10.1038/s41587-020-0439-x)
+
 ## Pipeline tools
 
 ### [Bakta](https://github.com/oschwengers/bakta)
 
-> Schwengers, O., Jelonek, L., Giber, M. A., Granite, S. J., &
-> Compilato, D. (2021). Bakta: rapid and standardized annotation of bacterial genomes via a comprehensive and
-> consistent classification approach. _Microbial Genomics_, 7(11), 000685.
-> [https://doi.org/10.1099/mgen.0.000685](https://doi.org/10.1099/mgen.0.000685)
+> Schwengers, O., Jelonek, L., Dieckmann, M. A., Beyvers, S., Blom, J., & Goesmann, A. (2021). Bakta: rapid and
+> standardized annotation of bacterial genomes via alignment-free sequence identification. _Microbial Genomics_, 7(11),
+> 000685. [https://doi.org/10.1099/mgen.0.000685](https://doi.org/10.1099/mgen.0.000685)
 
 ### [eggNOG-mapper](https://github.com/eggnogdb/eggnog-mapper)
 
-> Cantalapiedra, C. P., Hernández-Plaza, A., Letunic, I., Bork, P., & Huerta-Cepas, J. (2021).
-> Eggnog-mapper v2: Functional annotation, orthology assignments, and domain prediction at the
-> metagenomic scale. _Molecular Biology and Evolution_, 38(12), 5825–5829.
-> [https://doi.org/10.1093/molbev/msab293](https://doi.org/10.1093/molbev/msab293)
+> Cantalapiedra, C. P., Hernández-Plaza, A., Letunic, I., Bork, P., & Huerta-Cepas, J. (2021). eggNOG-mapper v2:
+> Functional annotation, orthology assignments, and domain prediction at the metagenomic scale. _Molecular Biology and
+> Evolution_, 38(12), 5825–5829. [https://doi.org/10.1093/molbev/msab293](https://doi.org/10.1093/molbev/msab293)
 
-### [Python](https://www.python.org/)
+### [eggNOG 5.0](http://eggnog5.embl.de/)
 
-> Huerta-Cepas, J., Szklarczyk, D., Heller, D., Hernández-Plaza, A., Forslund, S. K., Cook, H.,
-> Mende, D. R., Letunic, I., Rattei, T., Jensen, L. J., von Mering, C., & Bork, P. (2019).
-> Eggnog 5. 0: A hierarchical, functionally and phylogenetically annotated orthology resource
-> based on 5090 organisms and 2502 viruses. _Nucleic Acids Research_, 47(D1), D309–D314.
-> [https://doi.org/10.1093/nar/gky1085](https://doi.org/10.1093/nar/gky1085)
+> Huerta-Cepas, J., Szklarczyk, D., Heller, D., Hernández-Plaza, A., Forslund, S. K., Cook, H., Mende, D. R., Letunic,
+> I., Rattei, T., Jensen, L. J., von Mering, C., & Bork, P. (2019). eggNOG 5.0: a hierarchical, functionally and
+> phylogenetically annotated orthology resource based on 5090 organisms and 2502 viruses. _Nucleic Acids Research_,
+> 47(D1), D309–D314. [https://doi.org/10.1093/nar/gky1085](https://doi.org/10.1093/nar/gky1085)
 
 ## Software packaging and containerisation
 

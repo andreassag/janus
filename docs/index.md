@@ -9,8 +9,8 @@ with optional functional annotation via [eggNOG-mapper](https://github.com/eggno
 
 ```mermaid
 graph LR
-    A[Genome assemblies<br/>samplesheet.csv] --> B[BAKTA<br/>per-genome annotation]
-    B --> C[EGGNOG_MAPPER<br/>functional annotation]
+    A[Genome assemblies<br/>samplesheet.csv] --> B[BAKTA_BAKTA<br/>per-genome annotation]
+    B --> C[EGGNOGMAPPER<br/>functional annotation]
 ```
 
 ---

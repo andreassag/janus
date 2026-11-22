@@ -1,6 +1,6 @@
 {
   "name": "janus",
-  "version": "1.0.0-dev",
+  "version": "1.0.0",
   "scripts": {
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -9,7 +9,6 @@
   },
   "devDependencies": {
     "editorconfig-checker": "^6.0.1",
-    "prettier": "3.9.6",
-    "prettier-plugin-groovy": "^0.2.1"
+    "prettier": "3.9.6"
   }
 }

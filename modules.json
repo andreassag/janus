@@ -1,23 +1,23 @@
 {
-  "name": "exterex/janus",
-  "homePage": "https://github.com/exterex/janus",
+  "name": "andreassag/janus",
+  "homePage": "https://github.com/andreassag/janus",
   "repos": {
     "https://github.com/nf-core/modules.git": {
       "modules": {
         "nf-core": {
           "bakta/bakta": {
             "branch": "master",
-            "git_sha": "2080397432fcb0d079121dbacf22ce42ef175cec",
+            "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
             "installed_by": ["modules"]
           },
           "bakta/baktadbdownload": {
             "branch": "master",
-            "git_sha": "81fe5e6f07fa92ecfd1721373620e2538a1466eb",
+            "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
             "installed_by": ["modules"]
           },
           "eggnogmapper": {
             "branch": "master",
-            "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+            "git_sha": "7b3452a23773f687ededb4befd037920e5a51341",
             "installed_by": ["modules"]
           }
         }

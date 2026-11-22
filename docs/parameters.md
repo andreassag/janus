@@ -23,6 +23,8 @@ HPC systems or specify pre-downloaded database paths.
 ## Bakta options
 
 Per-sample settings (`complete`, `gram`, `locus_prefix`) are set via samplesheet columns, not pipeline parameters.
+Additional advanced parameters (skip flags, translation table, Prodigal training file, etc.) are defined in
+`conf/advanced.config`.
 
 | Parameter            | Default | Description                                            |
 | -------------------- | ------- | ------------------------------------------------------ |
@@ -33,11 +35,13 @@ Per-sample settings (`complete`, `gram`, `locus_prefix`) are set via samplesheet
 
 ## eggNOG-mapper options
 
+Additional advanced search and annotation parameters are defined in `conf/advanced.config`.
+
 | Parameter              | Default   | Description                                                          |
 | ---------------------- | --------- | -------------------------------------------------------------------- |
-| `--eggnog_run`         | `true`    | Run eggNOG-mapper on Bakta protein FASTA outputs (faa).              |
+| `--eggnog_run`         | `true`    | Run eggNOG-mapper on Bakta protein FASTA outputs (`*.faa`).          |
 | `--eggnog_search_mode` | `diamond` | Search method: diamond, mmseqs, hmmer, no_search, cache, novel_fams. |
-| `--eggnog_dmnd_db`     | `null`    | Path to custom Diamond database file (\*.dmnd).                      |
+| `--eggnog_dmnd_db`     | `null`    | Path to custom search database file or directory.                    |
 | `--eggnog_extra_args`  | `""`      | Additional CLI arguments passed verbatim to emapper.py.              |
 
 ## Generic options
@@ -46,5 +50,5 @@ Per-sample settings (`complete`, `gram`, `locus_prefix`) are set via samplesheet
 | -------------------- | ------- | --------------------------------------------------- |
 | `--publish_dir_mode` | `copy`  | Method used to save pipeline results to output dir. |
 | `--monochrome_logs`  | `false` | Disable coloured log output.                        |
-| `--help`             | `false` | Display help text.                                  |
+| `--help`             | `false` | Display help text (`--helpFull` for all options).   |
 | `--version`          | `false` | Display version and exit.                           |

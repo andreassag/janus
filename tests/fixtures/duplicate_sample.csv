@@ -1,0 +1,3 @@
+sample,fasta,complete,gram,locus_prefix
+dup_sample,assets/test_genomes/ecoli_slice.fna.gz,false,-,ECOLI
+dup_sample,assets/test_genomes/llactis_plasmid.fna.gz,true,+,LLAC

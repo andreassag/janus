@@ -20,6 +20,31 @@ jobs:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
-          node-version: "20"
-      - run: npm install
+          node-version: "22"
+      - run: npm ci
       - run: npx prettier --check .
+
+  Nextflow-Lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/get-shards
+        id: get-shards
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v3
+        with:
+          version: "${{ steps.get-shards.outputs.nextflow-version }}"
+      - name: Run nextflow lint
+        run: nextflow lint .
+
+  nf-core-Modules-Lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install nf-core tools
+        run: pip install nf-core
+      - name: Lint nf-core modules
+        run: nf-core modules lint --all --plain-text

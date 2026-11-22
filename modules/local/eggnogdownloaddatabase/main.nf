@@ -9,6 +9,7 @@ process EGGNOG_DOWNLOADDATABASE {
 
     output:
     path "eggnog_data/", emit: db
+    tuple val("${task.process}"), val('eggnog-mapper'), eval('python -c "from importlib.metadata import version; import sys; print(version(sys.argv[1]))" eggnog-mapper'), topic: versions, emit: versions_eggnogmapper
 
     when:
     task.ext.when == null || task.ext.when
@@ -25,7 +26,10 @@ process EGGNOG_DOWNLOADDATABASE {
     """
 
     stub:
+    def args = task.ext.args ?: ''
     """
+    echo "download_eggnog_data.py -y --data_dir eggnog_data ${args}"
+
     mkdir -p eggnog_data
     touch eggnog_data/eggnog.db
     touch eggnog_data/eggnog.taxa.db

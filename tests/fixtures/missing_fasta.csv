@@ -1,0 +1,2 @@
+sample,fasta,complete,gram,locus_prefix
+missing_test,assets/test_genomes/does_not_exist.fna.gz,false,-,MISS

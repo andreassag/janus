@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/andreassag/janus/main/assets/schema_input.json",
+  "title": "andreassag/janus samplesheet schema",
+  "description": "Schema for the CSV samplesheet provided via --input.",
+  "type": "array",
+  "minItems": 1,
+  "uniqueEntries": ["sample"],
+  "items": {
+    "type": "object",
+    "properties": {
+      "sample": {
+        "type": "string",
+        "pattern": "^\\S+$",
+        "errorMessage": "Sample name must be provided and cannot contain spaces.",
+        "meta": ["id"]
+      },
+      "fasta": {
+        "type": "string",
+        "pattern": "^\\S+\\.(fa|fas|fna|fasta)(\\.gz)?$",
+        "errorMessage": "FASTA file path must be provided, cannot contain spaces, and must have a valid FASTA extension (.fa, .fas, .fna, .fasta, optionally .gz)."
+      },
+      "complete": {
+        "type": "boolean",
+        "default": false,
+        "errorMessage": "The 'complete' column must be a boolean ('true' or 'false') when specified.",
+        "meta": ["complete"]
+      },
+      "gram": {
+        "type": "string",
+        "default": "?",
+        "enum": ["+", "-", "?"],
+        "errorMessage": "The 'gram' column must be '+', '-', or '?' when specified.",
+        "meta": ["gram"]
+      },
+      "locus_prefix": {
+        "type": "string",
+        "pattern": "^[A-Za-z0-9_.-]+$",
+        "errorMessage": "The 'locus_prefix' column cannot contain spaces or special characters (allowed: A-Z, a-z, 0-9, '_', '.', '-').",
+        "meta": ["prefix"]
+      }
+    },
+    "required": ["sample", "fasta"]
+  }
+}

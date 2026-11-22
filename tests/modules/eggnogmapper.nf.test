@@ -1,0 +1,75 @@
+nextflow_process {
+
+    name "Test nf-core EGGNOGMAPPER"
+    script "../../modules/nf-core/eggnogmapper/main.nf"
+    process "EGGNOGMAPPER"
+    profile "docker"
+
+    tag "modules"
+    tag "modules_nfcore"
+    tag "eggnogmapper"
+
+    test("sarscov2 proteome - diamond - stub") {
+        tag "stub"
+        options "-stub"
+
+        when {
+            process {
+                """
+                eggnog_db = file(params.modules_testdata_base_path + 'delete_me/eggnogmapper/eggnog.db', checkIfExists: true)
+                eggnog_db.copyTo("${workDir}/tmp/eggnog.db")
+                input[0] = [ [id: 'sarscov2', prefix: 'SARSCoV2'], file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/proteome.fasta', checkIfExists: true) ]
+                input[1] = [ 'diamond', [] ]
+                input[2] = "${workDir}/tmp/"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert process.out.annotations },
+                { assert process.out.orthologs },
+                { assert process.out.hits },
+                { assert process.out.versions_eggnogmapper }
+            )
+        }
+    }
+
+    test("sarscov2 proteome - diamond - real") {
+        tag "real"
+
+        setup {
+            run("DIAMOND_MAKEDB_TEST") {
+                script "../helpers/diamond_makedb.nf"
+                process {
+                    """
+                    input[0] = file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/proteome.fasta', checkIfExists: true)
+                    """
+                }
+            }
+        }
+
+        when {
+            process {
+                """
+                eggnog_db = file(params.modules_testdata_base_path + 'delete_me/eggnogmapper/eggnog.db', checkIfExists: true)
+                eggnog_db.copyTo("${workDir}/tmp/eggnog.db")
+                input[0] = [ [id: 'test'], file(params.modules_testdata_base_path + 'genomics/sarscov2/genome/proteome.fasta', checkIfExists: true) ]
+                input[1] = DIAMOND_MAKEDB_TEST.out.db.map { dmnd -> [ 'diamond', dmnd ] }
+                input[2] = "${workDir}/tmp/"
+                """
+            }
+        }
+
+        then {
+            assertAll(
+                { assert process.success },
+                { assert path(process.out.annotations[0][1]).text.contains('ENSSASP00005000002.1') },
+                { assert path(process.out.orthologs[0][1]).text.contains('ENSSASP00005000002.1') },
+                { assert path(process.out.hits[0][1]).exists() },
+                { assert process.out.versions_eggnogmapper[0][2].startsWith('2.1.') }
+            )
+        }
+    }
+}

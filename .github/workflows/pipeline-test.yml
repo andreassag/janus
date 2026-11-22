@@ -7,31 +7,81 @@ on:
     branches: [main, develop]
   schedule:
     - cron: "17 6 * * 1" # Every Monday at 06:17 UTC
+  workflow_dispatch:
 
 jobs:
-  test:
-    name: Run pipeline – test profile
+  test-stub:
+    name: Run pipeline – stub test & CLI smoke checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
+      - uses: ./.github/actions/get-shards
+        id: get-shards
+
       - name: Install Nextflow
         uses: nf-core/setup-nextflow@v3
         with:
-          version: latest-stable
+          version: "${{ steps.get-shards.outputs.nextflow-version }}"
 
-      - name: Run pipeline (test + docker)
+      - name: Smoke check CLI (--help and --version)
+        run: |
+          nextflow run . --help
+          nextflow run . --version
+
+      - name: Run pipeline (test + docker, stub)
         run: |
           nextflow run . \
             -profile test,docker \
-            -stub-run
+            -stub-run \
+            --outdir results_test
+          test -f results_test/bakta/ecoli_test/ECOLI.gff3
+          test -f results_test/bakta/llactis_plasmid/LLAC.gff3
+          test -f results_test/eggnog/ecoli_test/ECOLI.emapper.annotations
+          test -f results_test/eggnog/llactis_plasmid/LLAC.emapper.annotations
+          test -f results_test/pipeline_info/software_versions.yml
 
       - name: Upload pipeline logs
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: nextflow-logs
+          name: nextflow-stub-logs
           path: |
             .nextflow.log
-            results/pipeline_info/
+            results_test/pipeline_info/
+          retention-days: 7
+
+  test-real:
+    name: Run pipeline – real containerized test (Bakta light DB)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: ./.github/actions/get-shards
+        id: get-shards
+
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v3
+        with:
+          version: "${{ steps.get-shards.outputs.nextflow-version }}"
+
+      - name: Run pipeline (test + docker, real Bakta light DB)
+        run: |
+          nextflow run . \
+            -profile test,docker \
+            --eggnog_run false \
+            --outdir results_real
+          test -s results_real/bakta/ecoli_test/ECOLI.gff3
+          test -s results_real/bakta/llactis_plasmid/LLAC.gff3
+          test -s results_real/pipeline_info/software_versions.yml
+
+      - name: Upload pipeline logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: nextflow-real-logs
+          path: |
+            .nextflow.log
+            results_real/pipeline_info/
           retention-days: 7

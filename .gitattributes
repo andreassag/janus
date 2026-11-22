@@ -3,7 +3,7 @@
 *.nf     linguist-language=nextflow
 
 # Mark vendored nf-core modules as generated
-modules/**     linguist-generated
+modules/nf-core/** linguist-generated
 
 # Treat gzip archives as binary files
-*.gz            binary
+*.gz               binary

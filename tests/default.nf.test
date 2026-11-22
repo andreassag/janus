@@ -1,18 +1,112 @@
 nextflow_pipeline {
 
-    name "Test pipeline"
+    name "Test pipeline (stub suite)"
     script "../main.nf"
-    profile "test,docker"
 
-    test("Pipeline runs with test profile") {
+    tag "stub"
+    tag "pipeline"
+
+    test("Pipeline runs with test profile (2 compact samples)") {
+        options "-profile test,docker -stub-run"
+
         when {
             params {
-                outdir = "$outputDir"
+                outdir        = "$outputDir"
+                bakta_db_dir  = "$outputDir/db_cache/bakta"
+                eggnog_db_dir = "$outputDir/db_cache/eggnog"
             }
         }
 
         then {
-            assert workflow.success
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.gff3").exists() },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.faa").exists() },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.gbff").exists() },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.tsv").exists() },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.json").exists() },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.txt").exists() },
+                { assert path("$outputDir/bakta/llactis_plasmid/LLAC.gff3").exists() },
+                { assert path("$outputDir/bakta/llactis_plasmid/LLAC.faa").exists() },
+                { assert path("$outputDir/eggnog/ecoli_test/ECOLI.emapper.annotations").exists() },
+                { assert path("$outputDir/eggnog/llactis_plasmid/LLAC.emapper.annotations").exists() },
+                { assert path("$outputDir/pipeline_info/software_versions.yml").exists() }
+            )
+        }
+    }
+
+    test("Pipeline runs with test_full profile (3 reference genomes)") {
+        options "-profile test_full,docker -stub-run"
+
+        when {
+            params {
+                outdir        = "$outputDir"
+                bakta_db_dir  = "$outputDir/db_cache/bakta"
+                eggnog_db_dir = "$outputDir/db_cache/eggnog"
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/bakta/GCF_000005845.2/genome1.gff3").exists() },
+                { assert path("$outputDir/bakta/GCF_000009045.1/genome2.gff3").exists() },
+                { assert path("$outputDir/bakta/GCF_003176835.1/genome3.gff3").exists() },
+                { assert path("$outputDir/eggnog/GCF_000005845.2/genome1.emapper.annotations").exists() },
+                { assert path("$outputDir/eggnog/GCF_000009045.1/genome2.emapper.annotations").exists() },
+                { assert path("$outputDir/eggnog/GCF_003176835.1/genome3.emapper.annotations").exists() }
+            )
+        }
+    }
+
+    test("Pipeline fails on invalid gram stain in samplesheet") {
+        options "-profile docker -stub-run"
+
+        when {
+            params {
+                input         = "${projectDir}/tests/fixtures/invalid_gram.csv"
+                outdir        = "$outputDir"
+                bakta_db_dir  = "$outputDir/db_cache/bakta"
+                eggnog_db_dir = "$outputDir/db_cache/eggnog"
+            }
+        }
+
+        then {
+            assert workflow.failed
+        }
+    }
+
+    test("Pipeline fails on duplicate sample ID in samplesheet") {
+        options "-profile docker -stub-run"
+
+        when {
+            params {
+                input         = "${projectDir}/tests/fixtures/duplicate_sample.csv"
+                outdir        = "$outputDir"
+                bakta_db_dir  = "$outputDir/db_cache/bakta"
+                eggnog_db_dir = "$outputDir/db_cache/eggnog"
+            }
+        }
+
+        then {
+            assert workflow.failed
+        }
+    }
+
+    test("Pipeline fails when FASTA file does not exist") {
+        options "-profile docker -stub-run"
+
+        when {
+            params {
+                input         = "${projectDir}/tests/fixtures/missing_fasta.csv"
+                outdir        = "$outputDir"
+                bakta_db_dir  = "$outputDir/db_cache/bakta"
+                eggnog_db_dir = "$outputDir/db_cache/eggnog"
+            }
+        }
+
+        then {
+            assert workflow.failed
         }
     }
 }

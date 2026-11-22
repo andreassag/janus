@@ -61,14 +61,15 @@ nextflow run andreassag/janus \
 
 ## Profiles
 
-| Profile       | Description                     |
-| ------------- | ------------------------------- |
-| `docker`      | Run with Docker containers      |
-| `singularity` | Run with Singularity containers |
-| `apptainer`   | Run with Apptainer containers   |
-| `podman`      | Run with Podman containers      |
-| `conda`       | Run with Conda environments     |
-| `test`        | Minimal test dataset            |
+| Profile       | Description                                    |
+| ------------- | ---------------------------------------------- |
+| `docker`      | Run with Docker containers                     |
+| `singularity` | Run with Singularity containers                |
+| `apptainer`   | Run with Apptainer containers                  |
+| `podman`      | Run with Podman containers                     |
+| `conda`       | Run with Conda environments                    |
+| `test`        | Compact 2-sample bacterial test dataset        |
+| `test_full`   | Full 3-genome bacterial reference test dataset |
 
 ## Resuming a run
 

@@ -16,9 +16,7 @@ results/
 │       ├── <prefix>.hypotheticals.tsv      # Hypothetical protein summary
 │       ├── <prefix>.tsv                    # Tab-separated annotation summary
 │       ├── <prefix>.json                   # Machine-readable JSON annotation
-│       ├── <prefix>.txt                    # Human-readable annotation summary
-│       ├── <prefix>.png                    # Genome plot (optional)
-│       └── <prefix>.svg                    # Genome plot (optional)
+│       └── <prefix>.txt                    # Human-readable annotation summary
 ├── eggnog/
 │   └── <sample>/
 │       ├── <prefix>.emapper.annotations    # Functional annotations
@@ -28,7 +26,8 @@ results/
     ├── execution_timeline.html
     ├── execution_report.html
     ├── execution_trace.txt
-    └── pipeline_dag.html
+    ├── pipeline_dag.html
+    └── software_versions.yml
 ```
 
 ## bakta/

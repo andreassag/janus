@@ -11,48 +11,24 @@ project follows.
 git clone https://github.com/andreassag/janus.git
 cd janus
 
-# Create a Python virtual environment (Python 3.11+)
-python -m venv .venv
-source .venv/bin/activate
+# Install Node.js formatting/linting tools
+npm ci
 
-# Install development tools
-pip install pre-commit
-
-# Activate native git hooks in the repository
-git config core.hooksPath .githooks
-
-# Or install Python pre-commit hooks
-pip install pre-commit && pre-commit install
+# Install pre-commit hooks (requires pre-commit)
+pre-commit install
 ```
 
 ---
 
-## Code style
+## Code style and linting
 
-### Nextflow (`.nf`, `.config`)
-
-Nextflow files are formatted with [Prettier](https://prettier.io/) via `prettier-plugin-groovy`.
-
----
-
-## Git hooks (`.githooks/`)
-
-The repository includes pre-configured Git hooks in the `.githooks/` directory:
-
-| Hook         | Purpose                                                   |
-| ------------ | --------------------------------------------------------- |
-| `pre-commit` | Validates EditorConfig compliance and Prettier formatting |
-
-Activate the hooks:
+- **Nextflow (`.nf`, `.config`)**: Validated with `nextflow lint .` and `nf-core modules lint --all`.
+- **JSON, YAML, Markdown**: Formatted with [Prettier](https://prettier.io/) and checked with `editorconfig-checker`:
 
 ```bash
-git config core.hooksPath .githooks
-```
-
-Run checks manually:
-
-```bash
-.githooks/pre-commit
+npm run lint
+npm run format
+pre-commit run --all-files
 ```
 
 ---
@@ -68,29 +44,33 @@ nf-core modules list local
 # Install a new module
 nf-core modules install <tool>/<subtool>
 
-# Update modules
-nf-core modules update
+# Update modules and lint
+nf-core modules update --all
+nf-core modules lint --all
 ```
 
 ---
 
 ## Testing
 
-### nf-test (Nextflow unit tests)
+### nf-test (tiered unit, workflow, and pipeline tests)
 
 ```bash
-# requires Nextflow and Docker
-nf-test test tests/ --verbose
+# Tier 1: Fast stub tests (modules, workflow wiring, CLI, failure paths)
+nf-test test tests/ --tag stub --verbose
+
+# Tier 2: Real containerized pipeline tests (Docker)
+nf-test test tests/pipeline_real.nf.test --profile docker --verbose
 ```
 
-### Full pipeline test
+### Direct Nextflow pipeline runs
 
 ```bash
-nextflow run . \
-    --input assets/samplesheet.csv \
-    --outdir results \
-    -profile test,docker \
-    -stub-run
+# Compact 2-sample test profile (stub)
+nextflow run . -profile test,docker -stub-run
+
+# Full 3-genome reference profile (stub)
+nextflow run . -profile test_full,docker -stub-run
 ```
 
 ---
@@ -110,7 +90,7 @@ nextflow run . \
 
 Releases follow [Semantic Versioning](https://semver.org/). To cut a release:
 
-1. Update the version in `nextflow.config` (`manifest.version`).
+1. Update the version in `nextflow.config` (`manifest.version`) and `package.json`.
 2. Commit with message `release: bump version to X.Y.Z`.
 3. Push a `X.Y.Z` tag — the `release.yml` workflow creates the GitHub Release automatically.
 

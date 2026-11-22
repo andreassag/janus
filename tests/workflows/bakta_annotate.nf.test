@@ -1,0 +1,187 @@
+nextflow_workflow {
+
+    name "Test BAKTA_ANNOTATE workflow"
+    script "../../workflows/bakta_annotate.nf"
+    workflow "BAKTA_ANNOTATE"
+    profile "docker"
+
+    tag "stub"
+    tag "workflow"
+
+    options "-stub"
+
+    test("Multi-sample auto-download broadcast (3 samples)") {
+        when {
+            params {
+                input         = "${projectDir}/assets/samplesheet.csv"
+                outdir        = "$outputDir"
+                bakta_db_dir  = "$outputDir/db_cache/bakta"
+                eggnog_db_dir = "$outputDir/db_cache/eggnog"
+                eggnog_run    = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTADBDOWNLOAD') }.size() == 1 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOG_DOWNLOADDATABASE') }.size() == 1 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTA ') }.size() == 3 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOGMAPPER ') }.size() == 3 },
+                { assert workflow.out.bakta_gff.size() == 3 },
+                { assert workflow.out.bakta_faa.size() == 3 },
+                { assert workflow.out.eggnog_annotations.size() == 3 },
+                { assert path("$outputDir/pipeline_info/software_versions.yml").exists() }
+            )
+        }
+    }
+
+    test("Disable eggNOG-mapper when eggnog_run = false") {
+        when {
+            params {
+                input        = "${projectDir}/assets/samplesheet_test.csv"
+                outdir       = "$outputDir"
+                bakta_db_dir = "$outputDir/db_cache/bakta"
+                eggnog_run   = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTADBDOWNLOAD') }.size() == 1 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTA ') }.size() == 2 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOG_DOWNLOADDATABASE') }.size() == 0 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOGMAPPER ') }.size() == 0 },
+                { assert workflow.out.bakta_gff.size() == 2 },
+                { assert workflow.out.eggnog_annotations.size() == 0 }
+            )
+        }
+    }
+
+    test("Use pre-existing bakta_db and eggnog_db without running downloaders") {
+        when {
+            def preBakta = new File("${outputDir}/pre_bakta_db")
+            preBakta.mkdirs()
+            new File(preBakta, "bakta.db").text = ""
+
+            def preEggnog = new File("${outputDir}/pre_eggnog_db")
+            preEggnog.mkdirs()
+            new File(preEggnog, "eggnog.db").text = ""
+
+            params {
+                input      = "${projectDir}/assets/samplesheet_test.csv"
+                outdir     = "$outputDir"
+                bakta_db   = preBakta.absolutePath
+                eggnog_db  = preEggnog.absolutePath
+                eggnog_run = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTADBDOWNLOAD') }.size() == 0 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOG_DOWNLOADDATABASE') }.size() == 0 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTA ') }.size() == 2 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOGMAPPER ') }.size() == 2 }
+            )
+        }
+    }
+
+    test("Reuse cached bakta_db_dir and eggnog_db_dir automatically") {
+        when {
+            def cachedBakta = new File("${outputDir}/cached_bakta/db-light")
+            cachedBakta.mkdirs()
+            new File(cachedBakta, "bakta.db").text = ""
+
+            def cachedEggnog = new File("${outputDir}/cached_eggnog/eggnog_data")
+            cachedEggnog.mkdirs()
+            new File(cachedEggnog, "eggnog.db").text = ""
+
+            params {
+                input         = "${projectDir}/assets/samplesheet_test.csv"
+                outdir        = "$outputDir"
+                bakta_db_type = 'light'
+                bakta_db_dir  = "${outputDir}/cached_bakta"
+                eggnog_db_dir = "${outputDir}/cached_eggnog"
+                eggnog_run    = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTADBDOWNLOAD') }.size() == 0 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOG_DOWNLOADDATABASE') }.size() == 0 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTA ') }.size() == 2 },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOGMAPPER ') }.size() == 2 }
+            )
+        }
+    }
+
+    test("Bakta optional inputs and advanced annotation/skip flags") {
+        when {
+            def optDir = new File("${outputDir}/bakta_opt")
+            optDir.mkdirs()
+            def proteins = new File(optDir, "trusted.faa"); proteins.text = ">p1\nMKT\n"
+            def prodigal = new File(optDir, "prodigal.trn"); prodigal.text = "tf"
+            def regions  = new File(optDir, "regions.gff3"); regions.text = "##gff-version 3\n"
+            def hmms     = new File(optDir, "custom.hmm"); hmms.text = "HMMER3/f"
+
+            params {
+                input                     = "${projectDir}/assets/samplesheet_test.csv"
+                outdir                    = "$outputDir"
+                bakta_db_dir              = "$outputDir/db_cache/bakta"
+                eggnog_run                = false
+                bakta_proteins            = proteins.absolutePath
+                bakta_prodigal_tf         = prodigal.absolutePath
+                bakta_regions             = regions.absolutePath
+                bakta_hmms                = hmms.absolutePath
+                bakta_min_contig_length   = 200
+                bakta_translation_table   = 4
+                bakta_locus_tag_increment = 5
+                bakta_keep_contig_headers = true
+                bakta_compliant           = true
+                bakta_meta                = true
+                bakta_skip_crispr         = true
+                bakta_skip_plot           = true
+                bakta_extra_args          = '--verbose'
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().findAll { it.name.contains('BAKTA_BAKTA ') }.size() == 2 }
+            )
+        }
+    }
+
+    test("eggNOG novel_fams and mmseqs search configurations") {
+        when {
+            params {
+                input                   = "${projectDir}/assets/samplesheet_test.csv"
+                outdir                  = "$outputDir"
+                bakta_db_dir            = "$outputDir/db_cache/bakta"
+                eggnog_db_dir           = "$outputDir/db_cache/eggnog"
+                eggnog_search_mode      = 'novel_fams'
+                eggnog_sensmode         = 'fast'
+                eggnog_tax_scope        = 'bacteria'
+                eggnog_go_evidence      = 'all'
+                eggnog_pfam_realign     = 'realign'
+                eggnog_report_no_hits   = true
+                eggnog_md5              = true
+                eggnog_no_file_comments = true
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert workflow.trace.tasks().findAll { it.name.contains('EGGNOGMAPPER ') }.size() == 2 },
+                { assert workflow.out.eggnog_annotations.size() == 2 }
+            )
+        }
+    }
+}

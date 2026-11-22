@@ -1,0 +1,92 @@
+nextflow_pipeline {
+
+    name "Test pipeline (real containerized suite)"
+    script "../main.nf"
+    profile "docker"
+
+    tag "real"
+    tag "pipeline_real"
+
+    test("Real Bakta light DB annotation on compact bacterial dataset (--eggnog_run false)") {
+        when {
+            def cacheDir = System.getenv('JANUS_TEST_CACHE') ?: '/tmp/janus_real_test_cache'
+            params {
+                input         = "${projectDir}/assets/samplesheet_test.csv"
+                outdir        = "$outputDir"
+                bakta_db_type = 'light'
+                bakta_db_dir  = "${cacheDir}/bakta"
+                eggnog_run    = false
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.gff3").text.contains('##gff-version 3') },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.faa").text.contains('>') },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.gbff").text.contains('LOCUS') },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.tsv").text.contains('ECOLI_') },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.json").text.contains('"features"') },
+                { assert path("$outputDir/bakta/ecoli_test/ECOLI.txt").text.contains('CDSs:') },
+                { assert path("$outputDir/bakta/llactis_plasmid/LLAC.gff3").text.contains('##gff-version 3') },
+                { assert path("$outputDir/bakta/llactis_plasmid/LLAC.faa").text.contains('>') },
+                { assert path("$outputDir/bakta/llactis_plasmid/LLAC.tsv").text.contains('LLAC_') },
+                { assert path("$outputDir/pipeline_info/software_versions.yml").text.contains('bakta:') }
+            )
+        }
+    }
+
+    test("Real end-to-end pipeline with cached Bakta light DB and miniature eggNOG DB") {
+        when {
+            def cacheDir  = System.getenv('JANUS_TEST_CACHE') ?: '/tmp/janus_real_test_cache'
+            def miniEggDb = new File("${outputDir}/mini_eggnog_db")
+            miniEggDb.mkdirs()
+
+            def baseUrl = 'https://raw.githubusercontent.com/nf-core/test-datasets/modules/data/'
+            new URL("${baseUrl}delete_me/eggnogmapper/eggnog.db").withInputStream { inp ->
+                new File(miniEggDb, 'eggnog.db').withOutputStream { out -> out << inp }
+            }
+            new URL("${baseUrl}genomics/sarscov2/genome/proteome.fasta").withInputStream { inp ->
+                new File(miniEggDb, 'proteome.fasta').withOutputStream { out -> out << inp }
+            }
+
+            def proc = [
+                'docker', 'run', '--rm',
+                '-v', "${miniEggDb.absolutePath}:/data",
+                'quay.io/biocontainers/eggnog-mapper:2.1.13--pyhdfd78af_2',
+                'diamond', 'makedb', '--in', '/data/proteome.fasta', '-d', '/data/eggnog_proteins'
+            ].execute()
+            def err = new StringBuilder()
+            proc.consumeProcessErrorStream(err)
+            proc.waitFor()
+            if (proc.exitValue() != 0) {
+                throw new RuntimeException("Failed to build miniature DIAMOND DB: ${err}")
+            }
+            new File(miniEggDb, 'proteome.fasta').delete()
+
+            def singleSheet = new File("${outputDir}/real_single.csv")
+            singleSheet.text = "sample,fasta,complete,gram,locus_prefix\nllactis_plasmid,${projectDir}/assets/test_genomes/llactis_plasmid.fna.gz,true,+,LLAC\n"
+
+            params {
+                input             = singleSheet.absolutePath
+                outdir            = "$outputDir"
+                bakta_db_type     = 'light'
+                bakta_db_dir      = "${cacheDir}/bakta"
+                eggnog_run        = true
+                eggnog_db         = miniEggDb.absolutePath
+                eggnog_extra_args = '--override'
+            }
+        }
+
+        then {
+            assertAll(
+                { assert workflow.success },
+                { assert path("$outputDir/bakta/llactis_plasmid/LLAC.gff3").text.contains('##gff-version 3') },
+                { assert path("$outputDir/bakta/llactis_plasmid/LLAC.faa").text.contains('>') },
+                { assert path("$outputDir/eggnog/llactis_plasmid/LLAC.emapper.annotations").text.contains('#query') },
+                { assert path("$outputDir/pipeline_info/software_versions.yml").text.contains('bakta:') },
+                { assert path("$outputDir/pipeline_info/software_versions.yml").text.contains('eggnog-mapper:') }
+            )
+        }
+    }
+}

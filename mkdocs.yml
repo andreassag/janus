@@ -1,5 +1,5 @@
 site_name: janus
-site_description: Nextflow pipeline for Bakta genome annotation with locus tag transfer
+site_description: Nextflow pipeline for bacterial genome annotation with Bakta and eggNOG-mapper
 site_author: andreassag
 repo_name: andreassag/janus
 repo_url: https://github.com/andreassag/janus

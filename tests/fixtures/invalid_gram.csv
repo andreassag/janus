@@ -1,0 +1,2 @@
+sample,fasta,complete,gram,locus_prefix
+ecoli_test,assets/test_genomes/ecoli_slice.fna.gz,false,invalid,ECOLI

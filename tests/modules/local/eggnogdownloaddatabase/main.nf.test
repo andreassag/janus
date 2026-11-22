@@ -1,12 +1,22 @@
 nextflow_process {
 
-    name "Test EGGNOG_DOWNLOADDATABASE stub"
+    name "Test EGGNOG_DOWNLOADDATABASE"
     script "../../../../modules/local/eggnogdownloaddatabase/main.nf"
     process "EGGNOG_DOWNLOADDATABASE"
     profile "docker"
 
-    test("Should produce eggNOG DB output") {
+    tag "stub"
+    tag "modules"
+    tag "modules_local"
+
+    options "-stub"
+
+    test("Default diamond mode - stub") {
         when {
+            params {
+                eggnog_search_mode  = 'diamond'
+                eggnog_pfam_realign = 'none'
+            }
             process {
                 """
                 """
@@ -14,8 +24,81 @@ nextflow_process {
         }
 
         then {
-            assert process.success
-            assert process.out.db
+            def cmd = path(process.out.db.get(0)).parent.resolve('.command.sh').text
+            assertAll(
+                { assert process.success },
+                { assert process.out.db },
+                { assert path(process.out.db.get(0)).list().collect { it.fileName.toString() }.containsAll(['eggnog.db', 'eggnog.taxa.db', 'eggnog_proteins.dmnd', '.download_complete']) },
+                { assert process.out.versions_eggnogmapper },
+                { assert cmd.contains('download_eggnog_data.py -y --data_dir eggnog_data') }
+            )
+        }
+    }
+
+    test("MMseqs2 mode (-M) and Pfam realign (-P) - stub") {
+        when {
+            params {
+                eggnog_search_mode  = 'mmseqs'
+                eggnog_pfam_realign = 'realign'
+            }
+            process {
+                """
+                """
+            }
+        }
+
+        then {
+            def cmd = path(process.out.db.get(0)).parent.resolve('.command.sh').text
+            assertAll(
+                { assert process.success },
+                { assert process.out.db },
+                { assert cmd.contains('-M') && cmd.contains('-P') }
+            )
+        }
+    }
+
+    test("Novel families mode (-F) - stub") {
+        when {
+            params {
+                eggnog_search_mode  = 'novel_fams'
+                eggnog_pfam_realign = 'none'
+            }
+            process {
+                """
+                """
+            }
+        }
+
+        then {
+            def cmd = path(process.out.db.get(0)).parent.resolve('.command.sh').text
+            assertAll(
+                { assert process.success },
+                { assert process.out.db },
+                { assert cmd.contains('-F') }
+            )
+        }
+    }
+
+    test("HMMER mode with target taxa (-H -d) - stub") {
+        when {
+            params {
+                eggnog_search_mode  = 'hmmer'
+                eggnog_target_taxa  = '2'
+                eggnog_pfam_realign = 'none'
+            }
+            process {
+                """
+                """
+            }
+        }
+
+        then {
+            def cmd = path(process.out.db.get(0)).parent.resolve('.command.sh').text
+            assertAll(
+                { assert process.success },
+                { assert process.out.db },
+                { assert cmd.contains('-H -d 2') }
+            )
         }
     }
 }
