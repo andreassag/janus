@@ -35,12 +35,20 @@ jobs:
         with:
           version: "${{ steps.get-shards.outputs.nextflow-version }}"
       - name: Run nextflow lint
-        run: nextflow lint .
+        run: >-
+          nextflow lint -exclude .git -exclude .lineage -exclude .nf-test
+          -exclude .nextflow -exclude work -exclude nf-test.config .
 
   nf-core-Modules-Lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
+      - uses: ./.github/actions/get-shards
+        id: get-shards
+      - name: Install Nextflow
+        uses: nf-core/setup-nextflow@v3
+        with:
+          version: "${{ steps.get-shards.outputs.nextflow-version }}"
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
